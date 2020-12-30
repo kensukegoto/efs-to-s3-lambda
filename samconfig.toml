@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "efs-to-s3"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-eq8ej2shdznk"
+s3_prefix = "efs-to-s3"
+region = "ap-northeast-1"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "SecurityGroupIds=\"sg-0e077e40d979e631e\" SubnetIDs=\"subnet-02107cd10809240ac\" EFSPath=\"/mnt/efs\" AccessPointARN=\"arn:aws:elasticfilesystem:ap-northeast-1:395218667042:access-point/fsap-03eaf47deae7d859f\""

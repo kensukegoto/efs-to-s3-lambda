@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  efs-to-s3
+
+  Sample SAM Template for efs-to-s3
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Parameters:
+  SecurityGroupIds:
+    Type: String
+    Default: sg-0e077e40d979e631e
+  SubnetIDs:
+    Type: String
+    Description: The list of SubnetIDs in your Virtual Private Cloud (VPC)
+    Default: subnet-02107cd10809240ac
+  EFSPath:
+    Type: String
+    Default: /mnt/efs
+  AccessPointARN:
+    Type: String
+    Description: Access point ARN
+    Default: arn:aws:elasticfilesystem:ap-northeast-1:395218667042:access-point/fsap-03eaf47deae7d859f
+
+Resources:
+  CopyEFSFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: copy-efs-to-s3/
+      Handler: app.lambdaHandler
+      Runtime: nodejs12.x
+      ReservedConcurrentExecutions: 1
+      Policies:
+      - Statement:
+        - Sid: AWSLambdaVPCAccessExecutionRole
+          Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            - ec2:CreateNetworkInterface
+            - ec2:DescribeNetworkInterfaces
+            - ec2:DeleteNetworkInterface
+          Resource: "*"
+        - Sid: AmazonElasticFileSystemClientFullAccess
+          Effect: Allow
+          Action:
+            - elasticfilesystem:ClientMount
+            - elasticfilesystem:ClientRootAccess
+            - elasticfilesystem:ClientWrite
+            - elasticfilesystem:DescribeMountTargets
+          Resource: "*"
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref SecurityGroupIds
+        SubnetIds:
+          - !Ref SubnetIDs
+      FileSystemConfigs:
+        - Arn: !Ref AccessPointARN
+          LocalMountPath: !Ref EFSPath
+      Events:
+        CopyEFS:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /copy
+            Method: get
+
+Outputs:
+  CopyEFSApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/copy/"
+  CopyEFSFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt CopyEFSFunction.Arn
+  # CopyEFSFunctionIamRole:
+  #   Description: "Implicit IAM Role created for Hello World function"
+  #   Value: !GetAtt CopyEFSRole.Arn
