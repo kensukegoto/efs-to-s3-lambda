@@ -51,6 +51,7 @@ Resources:
           - elasticfilesystem:ClientWrite
           - elasticfilesystem:DescribeMountTargets
           Resource: '*'
+      - AmazonS3FullAccess
       VpcConfig:
         SecurityGroupIds:
         - Ref: SecurityGroupIds

@@ -54,6 +54,7 @@ Resources:
             - elasticfilesystem:ClientWrite
             - elasticfilesystem:DescribeMountTargets
           Resource: "*"
+      - AmazonS3FullAccess # s3へのアクセス権
       VpcConfig:
         SecurityGroupIds:
           - !Ref SecurityGroupIds
